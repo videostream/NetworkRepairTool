@@ -1,0 +1,12 @@
+c:\users\mathieu\documents\visual studio 2013\Projects\VideostreamNetworkRepair\VideostreamNetworkRepair\bin\Debug\VideostreamNetworkRepair.exe.config
+c:\users\mathieu\documents\visual studio 2013\Projects\VideostreamNetworkRepair\VideostreamNetworkRepair\bin\Debug\VideostreamNetworkRepair.exe
+c:\users\mathieu\documents\visual studio 2013\Projects\VideostreamNetworkRepair\VideostreamNetworkRepair\bin\Debug\VideostreamNetworkRepair.pdb
+c:\users\mathieu\documents\visual studio 2013\Projects\VideostreamNetworkRepair\VideostreamNetworkRepair\obj\Debug\VideostreamNetworkRepair.csprojResolveAssemblyReference.cache
+c:\users\mathieu\documents\visual studio 2013\Projects\VideostreamNetworkRepair\VideostreamNetworkRepair\obj\Debug\Interop.NETWORKLIST.dll
+c:\users\mathieu\documents\visual studio 2013\Projects\VideostreamNetworkRepair\VideostreamNetworkRepair\obj\Debug\VideostreamNetworkRepair.csproj.ResolveComReference.cache
+c:\users\mathieu\documents\visual studio 2013\Projects\VideostreamNetworkRepair\VideostreamNetworkRepair\obj\Debug\VideostreamNetworkRepair.Form1.resources
+c:\users\mathieu\documents\visual studio 2013\Projects\VideostreamNetworkRepair\VideostreamNetworkRepair\obj\Debug\VideostreamNetworkRepair.Properties.Resources.resources
+c:\users\mathieu\documents\visual studio 2013\Projects\VideostreamNetworkRepair\VideostreamNetworkRepair\obj\Debug\VideostreamNetworkRepair.csproj.GenerateResource.Cache
+c:\users\mathieu\documents\visual studio 2013\Projects\VideostreamNetworkRepair\VideostreamNetworkRepair\obj\Debug\VideostreamNetworkRepair.exe
+c:\users\mathieu\documents\visual studio 2013\Projects\VideostreamNetworkRepair\VideostreamNetworkRepair\obj\Debug\VideostreamNetworkRepair.pdb
+c:\users\mathieu\documents\visual studio 2013\Projects\VideostreamNetworkRepair\VideostreamNetworkRepair\obj\Debug\Interop.NetFwTypeLib.dll
