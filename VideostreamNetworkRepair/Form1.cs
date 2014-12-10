@@ -79,6 +79,8 @@ namespace VideostreamNetworkRepair
                 else if (cat == NLM_NETWORK_CATEGORY.NLM_NETWORK_CATEGORY_DOMAIN_AUTHENTICATED)
                     Console.WriteLine("[DOMAIN]");
             }
+            this.openPort(5556, "Videostream Desktop Application");
+            this.openPort(5558, "Videostream Mobile Application");
             label2.ForeColor = Color.Green;
             label2.Text = "Ready";
         }
