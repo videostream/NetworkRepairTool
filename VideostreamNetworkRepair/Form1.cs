@@ -173,9 +173,39 @@ namespace VideostreamNetworkRepair
             }
         }
     }
+
     public class VideostreamResponse
     {
-        public String Result;
+        private String result;
+        public String Result {
+            set {
+                result = value;
+                if (result.Equals("NoMediaLoaded"))
+                {
+                    NoMediaLoaded = true;
+                }
+                else if (result.Equals("CommunicationBlocked"))
+                {
+                    FirewallBlocked = true;
+                }
+                else if (result.Equals("NoSession"))
+                {
+                    ChromecastSession = false;
+                }
+                else if (result.Equals("Success"))
+                {
+                    Success = true;
+                }
+            }
+            get
+            {
+                return result;
+            }
+        }
+        public Boolean NoMediaLoaded;
+        public Boolean FirewallBlocked;
+        public Boolean ChromecastSession;
+        public Boolean Success;
     }
 
     public class jsonHelper
