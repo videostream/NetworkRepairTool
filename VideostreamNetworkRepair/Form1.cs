@@ -38,6 +38,7 @@ namespace VideostreamNetworkRepair
             this.openPort(5558, "Videostream Mobile Application");
             label1.ForeColor = Color.Green;
             label1.Text = "Ready";
+            StartWebRequest();
         }
 
         private void openPort(int port, string name)
@@ -90,6 +91,7 @@ namespace VideostreamNetworkRepair
             this.openPort(5558, "Videostream Mobile Application");
             label2.ForeColor = Color.Green;
             label2.Text = "Ready";
+            StartWebRequest();
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -101,7 +103,7 @@ namespace VideostreamNetworkRepair
         {
             
         }
-        WebRequest webRequest = HttpWebRequest.Create(new Uri("http://127.0.0.1:5556/status"));
+        WebRequest webRequest = HttpWebRequest.Create(new Uri("http://127.0.0.1:5556/portfix-complete"));
 
         void StartWebRequest()
         {
@@ -143,12 +145,6 @@ namespace VideostreamNetworkRepair
         void FinishWebRequest(IAsyncResult result)
         {
             webRequest.EndGetResponse(result);
-        }
-
-        private void getVideostreamStatus()
-        {
-            WebRequest request = WebRequest.Create("http://localhost:5556/status");
-            request.GetResponse();
         }
 
         ArrayList installedList = new ArrayList();
