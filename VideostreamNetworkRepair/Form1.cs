@@ -277,13 +277,14 @@ namespace VideostreamNetworkRepair
             prgRepair.Value = prgRepair.Maximum;
             lblStatus.Text = "Please reboot your computer now to finish applying changes.";
             btnReboot.Show();
+            btnClose.Show();
         }
 
         private void resultGoBackToVideostream()
         {
             prgRepair.Hide();
             prgRepair.Value = prgRepair.Maximum;
-            lblStatus.Text = "Please close this tool and re-open Videostream";
+            lblStatus.Text = "Re-open Videostream and select a video, if it fails to load try again by running this tool.";
             btnClose.Show();
         }
     }
@@ -312,7 +313,6 @@ namespace VideostreamNetworkRepair
                 {
                     Success = true;
                 }
-                TryAgain = true;
             }
             get
             {
