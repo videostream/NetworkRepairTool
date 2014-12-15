@@ -7,8 +7,13 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+using Microsoft.Win32;
+using System.Collections;
+using System.Net;
+using System.IO;
+using System.Runtime.Serialization;
+using System.ServiceModel.Web;
 
 namespace VideostreamNetworkRepair
 {
@@ -23,6 +28,8 @@ namespace VideostreamNetworkRepair
                 button2.Hide();
                 label2.Hide();
             }
+
+            getInstalledApplications();
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -94,5 +101,109 @@ namespace VideostreamNetworkRepair
         {
             
         }
+        WebRequest webRequest = HttpWebRequest.Create(new Uri("http://127.0.0.1:5556/status"));
+
+        void StartWebRequest()
+        {
+            this.DoWithResponse(webRequest, (response) =>
+            {
+                try
+                {
+                    using (var reader = new StreamReader(response.GetResponseStream()))
+                    {
+                        string json = reader.ReadToEnd();
+                        VideostreamResponse f = jsonHelper.From<VideostreamResponse>(json);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    
+                }
+            });
+        }
+
+        private void DoWithResponse(WebRequest request, Action<HttpWebResponse> responseAction)
+        {
+            webRequest.Proxy = null;
+            Action wrapperAction = () =>
+            {
+                request.BeginGetResponse(new AsyncCallback((iar) =>
+                {
+                    var response = (HttpWebResponse)((HttpWebRequest)iar.AsyncState).EndGetResponse(iar);
+                    responseAction(response);
+                }), request);
+            };
+            wrapperAction.BeginInvoke(new AsyncCallback((iar) =>
+            {
+                var action = (Action)iar.AsyncState;
+                action.EndInvoke(iar);
+            }), wrapperAction);
+        }
+
+        void FinishWebRequest(IAsyncResult result)
+        {
+            webRequest.EndGetResponse(result);
+        }
+
+        private void getVideostreamStatus()
+        {
+            WebRequest request = WebRequest.Create("http://localhost:5556/status");
+            request.GetResponse();
+        }
+
+        ArrayList installedList = new ArrayList();
+        private void getInstalledApplications()
+        {
+            string registry_key = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall";
+            
+            using (Microsoft.Win32.RegistryKey key = Registry.LocalMachine.OpenSubKey(registry_key))
+            {
+                foreach (string subkey_name in key.GetSubKeyNames())
+                {
+                    using (RegistryKey subkey = key.OpenSubKey(subkey_name))
+                    {
+                        String f = (String)subkey.GetValue("DisplayName");
+                        if (f != null && !f.Trim().Equals("") && !installedList.Contains(f))
+                        {
+                            Console.WriteLine(f);
+                            installedList.Add(f);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    public class VideostreamResponse
+    {
+        public String Result;
+    }
+
+    public class jsonHelper
+    {
+        public static string To<T>(T obj)
+        {
+            string retVal = null;
+            System.Runtime.Serialization.Json.DataContractJsonSerializer serializer = new System.Runtime.Serialization.Json.DataContractJsonSerializer(obj.GetType());
+            using (MemoryStream ms = new MemoryStream())
+            {
+                serializer.WriteObject(ms, obj);
+                retVal = Encoding.Default.GetString(ms.ToArray());
+            }
+
+            return retVal;
+        }
+
+        public static T From<T>(string json)
+        {
+            T obj = Activator.CreateInstance<T>();
+            using (MemoryStream ms = new MemoryStream(Encoding.Unicode.GetBytes(json)))
+            {
+                System.Runtime.Serialization.Json.DataContractJsonSerializer serializer = new System.Runtime.Serialization.Json.DataContractJsonSerializer(obj.GetType());
+                obj = (T)serializer.ReadObject(ms);
+            }
+
+            return obj;
+        }
     }
 }
+
