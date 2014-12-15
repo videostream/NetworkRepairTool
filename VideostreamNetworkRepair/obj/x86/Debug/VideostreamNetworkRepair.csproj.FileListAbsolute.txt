@@ -10,5 +10,3 @@ c:\Users\Mathieu\Documents\Visual Studio 2013\Projects\VideostreamNetworkRepair\
 c:\Users\Mathieu\Documents\Visual Studio 2013\Projects\VideostreamNetworkRepair\VideostreamNetworkRepair\obj\x86\Debug\VideostreamNetworkRepair.csproj.GenerateResource.Cache
 c:\Users\Mathieu\Documents\Visual Studio 2013\Projects\VideostreamNetworkRepair\VideostreamNetworkRepair\obj\x86\Debug\VideostreamNetworkRepair.exe
 c:\Users\Mathieu\Documents\Visual Studio 2013\Projects\VideostreamNetworkRepair\VideostreamNetworkRepair\obj\x86\Debug\VideostreamNetworkRepair.pdb
-C:\Users\Mathieu\Documents\Visual Studio 2013\Projects\VideostreamNetworkRepair\VideostreamNetworkRepair\bin\x86\Debug\Interop.NetFwTypeLib.dll
-C:\Users\Mathieu\Documents\Visual Studio 2013\Projects\VideostreamNetworkRepair\VideostreamNetworkRepair\bin\x86\Debug\Interop.NETWORKLIST.dll

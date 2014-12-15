@@ -14,7 +14,6 @@ using System.Net;
 using System.IO;
 using System.Runtime.Serialization;
 using System.ServiceModel.Web;
-
 namespace VideostreamNetworkRepair
 {
     public partial class Form1 : Form
@@ -25,21 +24,11 @@ namespace VideostreamNetworkRepair
             if (Environment.OSVersion.Platform == PlatformID.Win32NT && Environment.OSVersion.Version.Major == 5 && Environment.OSVersion.Version.Minor == 1)
             {
                 // windows XP. Disable profile button.
-                button2.Hide();
-                label2.Hide();
-            }
 
+            }
             getInstalledApplications();
         }
 
-        private void button1_Click(object sender, EventArgs e)
-        {
-            this.openPort(5556, "Videostream Desktop Application");
-            this.openPort(5558, "Videostream Mobile Application");
-            label1.ForeColor = Color.Green;
-            label1.Text = "Ready";
-            StartWebRequest();
-        }
 
         private void openPort(int port, string name)
         {
@@ -68,30 +57,35 @@ namespace VideostreamNetworkRepair
             profile.GloballyOpenPorts.Add(portClass);
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void repairFirewall()
         {
-            var manager = new NetworkListManager();
-            var connectedNetworks = manager.GetNetworks(NLM_ENUM_NETWORK.NLM_ENUM_NETWORK_CONNECTED).Cast<INetwork>();
-            foreach (var network in connectedNetworks)
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT && Environment.OSVersion.Version.Major == 5 && Environment.OSVersion.Version.Minor == 1)
             {
-                Console.Write(network.GetName() + " ");
-                var cat = network.GetCategory();
-                if (cat == NLM_NETWORK_CATEGORY.NLM_NETWORK_CATEGORY_PRIVATE) {
-                    Console.WriteLine("[PRIVATE]");
-                }
-                else if (cat == NLM_NETWORK_CATEGORY.NLM_NETWORK_CATEGORY_PUBLIC)
+                // windows XP. Can't do this, yo.
+            }
+            else
+            {
+                var manager = new NetworkListManager();
+                var connectedNetworks = manager.GetNetworks(NLM_ENUM_NETWORK.NLM_ENUM_NETWORK_CONNECTED).Cast<INetwork>();
+                foreach (var network in connectedNetworks)
                 {
-                    Console.WriteLine("[PUBLIC]");
-                    network.SetCategory(NLM_NETWORK_CATEGORY.NLM_NETWORK_CATEGORY_PRIVATE);
+                    Console.Write(network.GetName() + " ");
+                    var cat = network.GetCategory();
+                    if (cat == NLM_NETWORK_CATEGORY.NLM_NETWORK_CATEGORY_PRIVATE)
+                    {
+                        Console.WriteLine("[PRIVATE]");
+                    }
+                    else if (cat == NLM_NETWORK_CATEGORY.NLM_NETWORK_CATEGORY_PUBLIC)
+                    {
+                        Console.WriteLine("[PUBLIC]");
+                        network.SetCategory(NLM_NETWORK_CATEGORY.NLM_NETWORK_CATEGORY_PRIVATE);
+                    }
+                    else if (cat == NLM_NETWORK_CATEGORY.NLM_NETWORK_CATEGORY_DOMAIN_AUTHENTICATED)
+                        Console.WriteLine("[DOMAIN]");
                 }
-                else if (cat == NLM_NETWORK_CATEGORY.NLM_NETWORK_CATEGORY_DOMAIN_AUTHENTICATED)
-                    Console.WriteLine("[DOMAIN]");
             }
             this.openPort(5556, "Videostream Desktop Application");
             this.openPort(5558, "Videostream Mobile Application");
-            label2.ForeColor = Color.Green;
-            label2.Text = "Ready";
-            StartWebRequest();
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -99,22 +93,47 @@ namespace VideostreamNetworkRepair
             this.Close();
         }
 
-        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            
-        }
-        WebRequest webRequest = HttpWebRequest.Create(new Uri("http://127.0.0.1:5556/portfix-complete"));
+        HttpWebRequest webRequest;
+        int count = 0;
 
         void StartWebRequest()
         {
+            webRequest = (HttpWebRequest)HttpWebRequest.Create(new Uri("http://127.0.0.1:5556/portfix-complete"));
             this.DoWithResponse(webRequest, (response) =>
             {
                 try
                 {
-                    using (var reader = new StreamReader(response.GetResponseStream()))
+                    if (response != null)
                     {
-                        string json = reader.ReadToEnd();
-                        VideostreamResponse f = jsonHelper.From<VideostreamResponse>(json);
+                        using (var reader = new StreamReader(response.GetResponseStream()))
+                        {
+                            string json = reader.ReadToEnd();
+                            VideostreamResponse vsReponse = jsonHelper.From<VideostreamResponse>(json);
+                            Console.WriteLine(vsReponse.result);
+
+                            prgRepair.PerformStep();
+
+                            if (vsReponse.TryAgain && count++ < 3)
+                            {
+                                StartWebRequest();
+                            }
+                            else if (vsReponse.Success)
+                            {
+                                resultSuccess();
+                            }
+                            else if (vsReponse.NoMediaLoaded || vsReponse.ChromecastSession)
+                            {
+                                resultGoBackToVideostream();
+                            }
+                            else if (vsReponse.FirewallBlocked)
+                            {
+                                resultReboot();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        resultGoBackToVideostream();
                     }
                 }
                 catch (Exception ex)
@@ -127,12 +146,39 @@ namespace VideostreamNetworkRepair
         private void DoWithResponse(WebRequest request, Action<HttpWebResponse> responseAction)
         {
             webRequest.Proxy = null;
+            webRequest.KeepAlive = false;
+            webRequest.ContentType = "application/json";
+            webRequest.Method = "GET";
+            
             Action wrapperAction = () =>
             {
                 request.BeginGetResponse(new AsyncCallback((iar) =>
                 {
-                    var response = (HttpWebResponse)((HttpWebRequest)iar.AsyncState).EndGetResponse(iar);
-                    responseAction(response);
+                    try
+                    {
+                        try
+                        {
+                            var response = (HttpWebResponse)((HttpWebRequest)iar.AsyncState).EndGetResponse(iar);
+
+                            this.Invoke((MethodInvoker)delegate
+                            {
+                                responseAction(response);
+                            });
+                        }
+                        catch (Exception ex)
+                        {
+                            this.Invoke((MethodInvoker)delegate
+                            {
+                                responseAction(null);
+                            });
+                        }
+                        
+                    }
+                    catch (WebException ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
+
                 }), request);
             };
             wrapperAction.BeginInvoke(new AsyncCallback((iar) =>
@@ -142,11 +188,7 @@ namespace VideostreamNetworkRepair
             }), wrapperAction);
         }
 
-        void FinishWebRequest(IAsyncResult result)
-        {
-            webRequest.EndGetResponse(result);
-        }
-
+        Boolean hasAntivirus = false;
         ArrayList installedList = new ArrayList();
         private void getInstalledApplications()
         {
@@ -158,24 +200,101 @@ namespace VideostreamNetworkRepair
                 {
                     using (RegistryKey subkey = key.OpenSubKey(subkey_name))
                     {
-                        String f = (String)subkey.GetValue("DisplayName");
-                        if (f != null && !f.Trim().Equals("") && !installedList.Contains(f))
+                        String displayName = (String)subkey.GetValue("DisplayName");
+                        String installLocation = (String)subkey.GetValue("InstallLocation");
+                        if (displayName != null && !displayName.Trim().Equals(""))
                         {
-                            Console.WriteLine(f);
-                            installedList.Add(f);
+                            if (isAntivirus(displayName))
+                            {
+                                hasAntivirus = true;
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+
+            using (Microsoft.Win32.RegistryKey key = Registry.CurrentUser.OpenSubKey(registry_key))
+            {
+                foreach (string subkey_name in key.GetSubKeyNames())
+                {
+                    using (RegistryKey subkey = key.OpenSubKey(subkey_name))
+                    {
+                        String displayName = (String)subkey.GetValue("DisplayName");
+                        String installLocation = (String)subkey.GetValue("InstallLocation");
+                        if (displayName != null && !displayName.Trim().Equals(""))
+                        {
+                            if (isAntivirus(displayName))
+                            {
+                                hasAntivirus = true;
+                                return;
+                            }
                         }
                     }
                 }
             }
         }
+
+        private bool isAntivirus(string displayName)
+        {
+            Console.WriteLine("TODO: Verify if " + displayName + " is name of Antivirus");
+            return false;
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            repairFirewall();
+            tmrProgress.Start();
+        }
+
+        private void tmrProgress_Tick(object sender, EventArgs e)
+        {
+            prgRepair.PerformStep();
+            if (prgRepair.Value >= prgRepair.Maximum/2)
+            {
+                tmrProgress.Stop();
+                prgRepair.Step = prgRepair.Maximum / 6;
+                StartWebRequest();
+            }
+        }
+
+        private void btnReboot_Click(object sender, EventArgs e)
+        {
+           // System.Diagnostics.Process.Start("shutdown.exe", "-r -t 0");
+        }
+
+        private void resultSuccess()
+        {
+            prgRepair.Value = prgRepair.Maximum;
+            prgRepair.Hide();
+            lblStatus.Text = "Success! This tool has completed its work.";
+            btnClose.Show();
+        }
+
+        private void resultReboot()
+        {
+            prgRepair.Hide();
+            prgRepair.Value = prgRepair.Maximum;
+            lblStatus.Text = "Please reboot your computer now to finish applying changes.";
+            btnReboot.Show();
+        }
+
+        private void resultGoBackToVideostream()
+        {
+            prgRepair.Hide();
+            prgRepair.Value = prgRepair.Maximum;
+            lblStatus.Text = "Please close this tool and re-open Videostream";
+            btnClose.Show();
+        }
     }
 
     public class VideostreamResponse
     {
-        private String result;
-        public String Result {
+        private String mResult;
+        public String result {
             set {
-                result = value;
+                mResult = value;
+
                 if (result.Equals("NoMediaLoaded"))
                 {
                     NoMediaLoaded = true;
@@ -183,25 +302,29 @@ namespace VideostreamNetworkRepair
                 else if (result.Equals("CommunicationBlocked"))
                 {
                     FirewallBlocked = true;
+                    TryAgain = true;
                 }
                 else if (result.Equals("NoSession"))
                 {
-                    ChromecastSession = false;
+                    ChromecastSession = true;
                 }
                 else if (result.Equals("Success"))
                 {
                     Success = true;
                 }
+                TryAgain = true;
             }
             get
             {
-                return result;
+                return mResult;
             }
         }
-        public Boolean NoMediaLoaded;
-        public Boolean FirewallBlocked;
-        public Boolean ChromecastSession;
-        public Boolean Success;
+
+        public Boolean NoMediaLoaded = false;
+        public Boolean FirewallBlocked = false;
+        public Boolean ChromecastSession = false;
+        public Boolean Success = false;
+        public Boolean TryAgain = false;
     }
 
     public class jsonHelper

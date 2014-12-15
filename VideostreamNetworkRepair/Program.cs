@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
-using System.ServiceModel.Web;
 
 namespace VideostreamNetworkRepair
 {
