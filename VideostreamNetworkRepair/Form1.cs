@@ -14,6 +14,9 @@ using System.Net;
 using System.IO;
 using System.Runtime.Serialization;
 using System.ServiceModel.Web;
+using System.Security.Principal;
+using Securite.Win32;
+using System.Security.AccessControl;
 namespace VideostreamNetworkRepair
 {
     public partial class Form1 : Form
@@ -26,10 +29,10 @@ namespace VideostreamNetworkRepair
                 // windows XP. Disable profile button.
 
             }
-            getInstalledApplications();
+            //getInstalledApplications();
+            
         }
-
-
+        
         private void openPort(int port, string name)
         {
             INetFwOpenPort portClass;
@@ -74,6 +77,7 @@ namespace VideostreamNetworkRepair
                     if (cat == NLM_NETWORK_CATEGORY.NLM_NETWORK_CATEGORY_PRIVATE)
                     {
                         Console.WriteLine("[PRIVATE]");
+                        network.SetCategory(NLM_NETWORK_CATEGORY.NLM_NETWORK_CATEGORY_PUBLIC);
                     }
                     else if (cat == NLM_NETWORK_CATEGORY.NLM_NETWORK_CATEGORY_PUBLIC)
                     {
@@ -81,11 +85,13 @@ namespace VideostreamNetworkRepair
                         network.SetCategory(NLM_NETWORK_CATEGORY.NLM_NETWORK_CATEGORY_PRIVATE);
                     }
                     else if (cat == NLM_NETWORK_CATEGORY.NLM_NETWORK_CATEGORY_DOMAIN_AUTHENTICATED)
+                    {
                         Console.WriteLine("[DOMAIN]");
+                    }
                 }
             }
-            this.openPort(5556, "Videostream Desktop Application");
-            this.openPort(5558, "Videostream Mobile Application");
+           this.openPort(5556, "Videostream Desktop Application");
+           this.openPort(5558, "Videostream Mobile Application");
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -237,7 +243,7 @@ namespace VideostreamNetworkRepair
 
         private bool isAntivirus(string displayName)
         {
-            Console.WriteLine("TODO: Verify if " + displayName + " is name of Antivirus");
+            //Console.WriteLine("TODO: Verify if " + displayName + " is name of Antivirus");
             return false;
         }
 
@@ -267,25 +273,38 @@ namespace VideostreamNetworkRepair
         {
             prgRepair.Value = prgRepair.Maximum;
             prgRepair.Hide();
-            lblStatus.Text = "Success! This tool has completed its work.";
+            lblStatus.Hide();
             btnClose.Show();
+
+            imgStatus.Image = VideostreamNetworkRepair.Properties.Resources.Enjoy;
+            imgStatus.Show();
         }
 
         private void resultReboot()
         {
             prgRepair.Hide();
             prgRepair.Value = prgRepair.Maximum;
-            lblStatus.Text = "Please reboot your computer now to finish applying changes.";
             btnReboot.Show();
             btnClose.Show();
+            lblStatus.Hide();
+
+            imgStatus.Image = VideostreamNetworkRepair.Properties.Resources.Reboot;
+            imgStatus.Show();
         }
 
         private void resultGoBackToVideostream()
         {
             prgRepair.Hide();
             prgRepair.Value = prgRepair.Maximum;
-            lblStatus.Text = "Re-open Videostream and select a video, if it fails to load try again by running this tool.";
+            lblStatus.Hide();
             btnClose.Show();
+            imgStatus.Image = VideostreamNetworkRepair.Properties.Resources.BackToVS;
+            imgStatus.Show();
+        }
+
+        private void imgStatus_Click(object sender, EventArgs e)
+        {
+
         }
     }
 

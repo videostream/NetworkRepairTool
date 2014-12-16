@@ -110,6 +110,7 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="natif.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Form1.resx">
@@ -188,6 +189,33 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\mstile-70x70.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\BackToVS.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\BackToVS-Preview.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Close.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Enjoy.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Enjoy-Preview.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Reboot.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Reboot-Preview.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Restart.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Title.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
