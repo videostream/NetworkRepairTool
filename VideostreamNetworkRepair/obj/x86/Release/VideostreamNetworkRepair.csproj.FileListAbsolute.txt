@@ -10,7 +10,5 @@ c:\Users\Mathieu\Documents\Visual Studio 2013\Projects\VideostreamNetworkRepair\
 c:\Users\Mathieu\Documents\Visual Studio 2013\Projects\VideostreamNetworkRepair\VideostreamNetworkRepair\obj\x86\Release\VideostreamNetworkRepair.exe
 c:\Users\Mathieu\Documents\Visual Studio 2013\Projects\VideostreamNetworkRepair\VideostreamNetworkRepair\obj\x86\Release\VideostreamNetworkRepair.pdb
 c:\Users\Mathieu\Documents\Visual Studio 2013\Projects\VideostreamNetworkRepair\VideostreamNetworkRepair\obj\x86\Release\VideostreamNetworkRepair.csprojResolveAssemblyReference.cache
-C:\Users\Mathieu\Documents\Visual Studio 2013\Projects\VideostreamNetworkRepair\VideostreamNetworkRepair\obj\x86\Release\Interop.NATUPNPLib.dll
-C:\Users\Mathieu\Documents\Visual Studio 2013\Projects\VideostreamNetworkRepair\VideostreamNetworkRepair\obj\x86\Release\Interop.NETCONLib.dll
 C:\Users\Mathieu\Documents\Visual Studio 2013\Projects\VideostreamNetworkRepair\VideostreamNetworkRepair\bin\x86\Release\Interop.NetFwTypeLib.dll
 C:\Users\Mathieu\Documents\Visual Studio 2013\Projects\VideostreamNetworkRepair\VideostreamNetworkRepair\bin\x86\Release\Interop.NETWORKLIST.dll

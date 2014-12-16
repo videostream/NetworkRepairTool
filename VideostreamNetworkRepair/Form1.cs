@@ -17,6 +17,9 @@ using System.ServiceModel.Web;
 using System.Security.Principal;
 using Securite.Win32;
 using System.Security.AccessControl;
+using System.Configuration;
+using System.Reflection;
+using System.Net.Configuration;
 namespace VideostreamNetworkRepair
 {
     public partial class Form1 : Form
@@ -28,9 +31,42 @@ namespace VideostreamNetworkRepair
             {
                 // windows XP. Disable profile button.
             }
+            ToggleAllowUnsafeHeaderParsing(true);
             repairFirewall();
             tmrProgress.Start();
             //getInstalledApplications();
+        }
+
+        // Enable/disable useUnsafeHeaderParsing.
+        // See http://o2platform.wordpress.com/2010/10/20/dealing-with-the-server-committed-a-protocol-violation-sectionresponsestatusline/
+        public static bool ToggleAllowUnsafeHeaderParsing(bool enable)
+        {
+            //Get the assembly that contains the internal class
+            Assembly assembly = Assembly.GetAssembly(typeof(SettingsSection));
+            if (assembly != null)
+            {
+                //Use the assembly in order to get the internal type for the internal class
+                Type settingsSectionType = assembly.GetType("System.Net.Configuration.SettingsSectionInternal");
+                if (settingsSectionType != null)
+                {
+                    //Use the internal static property to get an instance of the internal settings class.
+                    //If the static instance isn't created already invoking the property will create it for us.
+                    object anInstance = settingsSectionType.InvokeMember("Section",
+                    BindingFlags.Static | BindingFlags.GetProperty | BindingFlags.NonPublic, null, null, new object[] { });
+                    if (anInstance != null)
+                    {
+                        //Locate the private bool field that tells the framework if unsafe header parsing is allowed
+                        FieldInfo aUseUnsafeHeaderParsing = settingsSectionType.GetField("useUnsafeHeaderParsing", BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (aUseUnsafeHeaderParsing != null)
+                        {
+                            aUseUnsafeHeaderParsing.SetValue(anInstance, enable);
+                            return true;
+                        }
+
+                    }
+                }
+            }
+            return false;
         }
 
         private void openPort(int port, string name)
@@ -114,10 +150,8 @@ namespace VideostreamNetworkRepair
                         using (var reader = new StreamReader(response.GetResponseStream()))
                         {
                             string json = reader.ReadToEnd();
-                            MessageBox.Show(json, "JSON");
                             VideostreamResponse vsReponse = jsonHelper.From<VideostreamResponse>(json);
                             Console.WriteLine(vsReponse.result);
-                            MessageBox.Show(vsReponse.result, "Response");
 
                             prgRepair.PerformStep();
 
@@ -142,12 +176,10 @@ namespace VideostreamNetworkRepair
                     else
                     {
                         resultGoBackToVideostream();
-                        MessageBox.Show("null", "Response");
                     }
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("null", "Exception");
                     resultGoBackToVideostream();
                 }
             });
