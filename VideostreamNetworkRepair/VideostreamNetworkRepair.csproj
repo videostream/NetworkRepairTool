@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>VideostreamNetworkRepair</RootNamespace>
     <AssemblyName>VideostreamNetworkRepair</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <PublishUrl>C:\Users\Mathieu\Dev\SampleFirst\</PublishUrl>
     <Install>true</Install>
