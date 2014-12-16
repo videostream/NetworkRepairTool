@@ -27,12 +27,12 @@ namespace VideostreamNetworkRepair
             if (Environment.OSVersion.Platform == PlatformID.Win32NT && Environment.OSVersion.Version.Major == 5 && Environment.OSVersion.Version.Minor == 1)
             {
                 // windows XP. Disable profile button.
-
             }
+            repairFirewall();
+            tmrProgress.Start();
             //getInstalledApplications();
-            
         }
-        
+
         private void openPort(int port, string name)
         {
             INetFwOpenPort portClass;
@@ -104,7 +104,7 @@ namespace VideostreamNetworkRepair
         void StartWebRequest()
         {
             webRequest = (HttpWebRequest)HttpWebRequest.Create(new Uri("http://127.0.0.1:5556/portfix-complete"));
-            webRequest.Timeout = 20000;
+            //webRequest.Timeout = 20000;
             this.DoWithResponse(webRequest, (response) =>
             {
                 try
@@ -114,8 +114,10 @@ namespace VideostreamNetworkRepair
                         using (var reader = new StreamReader(response.GetResponseStream()))
                         {
                             string json = reader.ReadToEnd();
+                            MessageBox.Show(json, "JSON");
                             VideostreamResponse vsReponse = jsonHelper.From<VideostreamResponse>(json);
                             Console.WriteLine(vsReponse.result);
+                            MessageBox.Show(vsReponse.result, "Response");
 
                             prgRepair.PerformStep();
 
@@ -140,11 +142,13 @@ namespace VideostreamNetworkRepair
                     else
                     {
                         resultGoBackToVideostream();
+                        MessageBox.Show("null", "Response");
                     }
                 }
                 catch (Exception ex)
                 {
-                    
+                    MessageBox.Show("null", "Exception");
+                    resultGoBackToVideostream();
                 }
             });
         }
@@ -253,8 +257,6 @@ namespace VideostreamNetworkRepair
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            repairFirewall();
-            tmrProgress.Start();
         }
 
         private void tmrProgress_Tick(object sender, EventArgs e)
