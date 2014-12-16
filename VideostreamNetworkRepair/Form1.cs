@@ -77,7 +77,6 @@ namespace VideostreamNetworkRepair
                     if (cat == NLM_NETWORK_CATEGORY.NLM_NETWORK_CATEGORY_PRIVATE)
                     {
                         Console.WriteLine("[PRIVATE]");
-                        network.SetCategory(NLM_NETWORK_CATEGORY.NLM_NETWORK_CATEGORY_PUBLIC);
                     }
                     else if (cat == NLM_NETWORK_CATEGORY.NLM_NETWORK_CATEGORY_PUBLIC)
                     {
@@ -105,6 +104,7 @@ namespace VideostreamNetworkRepair
         void StartWebRequest()
         {
             webRequest = (HttpWebRequest)HttpWebRequest.Create(new Uri("http://127.0.0.1:5556/portfix-complete"));
+            webRequest.Timeout = 20000;
             this.DoWithResponse(webRequest, (response) =>
             {
                 try
@@ -183,6 +183,10 @@ namespace VideostreamNetworkRepair
                     catch (WebException ex)
                     {
                         Console.WriteLine(ex.Message);
+                        this.Invoke((MethodInvoker)delegate
+                        {
+                            responseAction(null);
+                        });
                     }
 
                 }), request);
