@@ -70,37 +70,6 @@ namespace VideostreamNetworkRepair
             profile.GloballyOpenPorts.Add(portClass);
 
             //FirewallHelper.Instance.GrantAuthorization()
-            try
-            {
-                ArrayList list = (ArrayList)FirewallHelper.Instance.GetAuthorizedAppPaths();
-                foreach (string[] item in list)
-                {
-                    String appName = item[0];
-                    String appPath = item[1];
-                    if (appName != null && appName.Equals("Google Chrome"))
-                    {
-                        FirewallHelper.Instance.GrantAuthorization(appPath, appName);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                // Didn't work. Meh.
-            }
-
-            try
-            {
-                INetFwPolicy2 fwPolicy2;
-                Type tNetFwPolicy2 = Type.GetTypeFromProgID("HNetCfg.FwPolicy2");
-                fwPolicy2 = (INetFwPolicy2)Activator.CreateInstance(tNetFwPolicy2);
-                fwPolicy2.set_BlockAllInboundTraffic(NET_FW_PROFILE_TYPE2_.NET_FW_PROFILE2_PRIVATE, false);
-                //fwPolicy2.set_DefaultInboundAction(NET_FW_PROFILE_TYPE2_.NET_FW_PROFILE2_PRIVATE, NET_FW_ACTION_.NET_FW_ACTION_ALLOW);
-            }
-            catch (Exception ex)
-            {
-
-            }
-            
         }
 
         private void repairFirewall()
@@ -130,6 +99,37 @@ namespace VideostreamNetworkRepair
                     {
                         Console.WriteLine("[DOMAIN]");
                     }
+                }
+
+                try
+                {
+                    ArrayList list = (ArrayList)FirewallHelper.Instance.GetAuthorizedAppPaths();
+                    foreach (string[] item in list)
+                    {
+                        String appName = item[0];
+                        String appPath = item[1];
+                        if (appName != null && appName.Equals("Google Chrome"))
+                        {
+                            FirewallHelper.Instance.GrantAuthorization(appPath, appName);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Didn't work. Meh.
+                }
+
+                try
+                {
+                    INetFwPolicy2 fwPolicy2;
+                    Type tNetFwPolicy2 = Type.GetTypeFromProgID("HNetCfg.FwPolicy2");
+                    fwPolicy2 = (INetFwPolicy2)Activator.CreateInstance(tNetFwPolicy2);
+                    fwPolicy2.set_BlockAllInboundTraffic(NET_FW_PROFILE_TYPE2_.NET_FW_PROFILE2_PRIVATE, false);
+                    //fwPolicy2.set_DefaultInboundAction(NET_FW_PROFILE_TYPE2_.NET_FW_PROFILE2_PRIVATE, NET_FW_ACTION_.NET_FW_ACTION_ALLOW);
+                }
+                catch (Exception ex)
+                {
+
                 }
             }
            this.openPort(5556, "Videostream Desktop Application");
