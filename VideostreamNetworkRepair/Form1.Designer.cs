@@ -74,7 +74,7 @@
             // prgRepair
             // 
             this.prgRepair.Location = new System.Drawing.Point(12, 66);
-            this.prgRepair.Maximum = 1000;
+            this.prgRepair.Maximum = 600;
             this.prgRepair.Name = "prgRepair";
             this.prgRepair.Size = new System.Drawing.Size(496, 27);
             this.prgRepair.Step = 1;
