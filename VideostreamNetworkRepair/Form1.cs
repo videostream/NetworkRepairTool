@@ -38,6 +38,7 @@ namespace VideostreamNetworkRepair
             tmrProgress.Start();
             //bool returnCode = AntivirusInstalled();
             //MessageBox.Show(GetAntiVirusInfoString());
+            //GetAntiVirusInfoString();
             //getInstalledApplications();
         }
 
@@ -80,6 +81,8 @@ namespace VideostreamNetworkRepair
             }
             else
             {
+                authorizeChromeApplication();
+
                 var manager = new NetworkListManager();
                 var connectedNetworks = manager.GetNetworks(NLM_ENUM_NETWORK.NLM_ENUM_NETWORK_CONNECTED).Cast<INetwork>();
                 foreach (var network in connectedNetworks)
@@ -243,7 +246,7 @@ namespace VideostreamNetworkRepair
 
         Boolean hasAntivirus = false;
         ArrayList installedList = new ArrayList();
-        private void getInstalledApplications()
+        private void authorizeChromeApplication()
         {
             string registry_key = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall";
             
@@ -257,9 +260,17 @@ namespace VideostreamNetworkRepair
                         String installLocation = (String)subkey.GetValue("InstallLocation");
                         if (displayName != null && !displayName.Trim().Equals(""))
                         {
-                            if (isAntivirus(displayName))
+                            if (displayName.Equals("Google Chrome"))
                             {
-                                hasAntivirus = true;
+                                try
+                                {
+                                    FirewallHelper.Instance.GrantAuthorization(installLocation + "\\chrome.exe", displayName);
+                                    
+                                }
+                                catch (Exception ex)
+                                {
+
+                                }
                                 return;
                             }
                         }
@@ -267,7 +278,8 @@ namespace VideostreamNetworkRepair
                 }
             }
 
-            using (Microsoft.Win32.RegistryKey key = Registry.CurrentUser.OpenSubKey(registry_key))
+            string other_key = @"SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Google Chrome";
+            using (Microsoft.Win32.RegistryKey key = Registry.LocalMachine.OpenSubKey(other_key))
             {
                 foreach (string subkey_name in key.GetSubKeyNames())
                 {
@@ -277,9 +289,17 @@ namespace VideostreamNetworkRepair
                         String installLocation = (String)subkey.GetValue("InstallLocation");
                         if (displayName != null && !displayName.Trim().Equals(""))
                         {
-                            if (isAntivirus(displayName))
+                            if (displayName.Equals("Google Chrome"))
                             {
-                                hasAntivirus = true;
+                                try
+                                {
+                                    FirewallHelper.Instance.GrantAuthorization(installLocation + "\\chrome.exe", displayName);
+
+                                }
+                                catch (Exception ex)
+                                {
+
+                                }
                                 return;
                             }
                         }
@@ -398,42 +418,11 @@ namespace VideostreamNetworkRepair
                 // Append key-value pairs to the output string (in scheme $name: $value)
                 if (key == "displayName")
                 {
-                    if (avCollection[key].ToLower().Equals("windows defender"))
-                    {
-                        addWindowsDefenderExemption();
-                    }
                     output += key + ": " + avCollection[key] + Environment.NewLine;
                 }
             }
 
             return output;
-        }
-
-        private void addWindowsDefenderExemption()
-        {
-            SecurityIdentifier sid = new SecurityIdentifier(WellKnownSidType.WorldSid, null);
-            NTAccount account = sid.Translate(typeof(NTAccount)) as NTAccount;
-
-            // Get ACL from Windows
-            String key = "";
-            // CHANGED to open the key as writable: using (RegistryKey rk = Registry.LocalMachine.OpenSubKey(key))
-            using (RegistryKey rk = Registry.LocalMachine.OpenSubKey(key, RegistryKeyPermissionCheck.ReadWriteSubTree))
-            {
-
-                    // CHANGED to add to existing security: RegistrySecurity rs = new RegistrySecurity();
-                RegistrySecurity rs = rk.GetAccessControl();
-
-                // Creating registry access rule for 'Everyone' NT account
-                RegistryAccessRule rar = new RegistryAccessRule(
-                    account.ToString(),
-                    RegistryRights.FullControl,
-                    InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit,
-                    PropagationFlags.None,
-                    AccessControlType.Allow);
-
-                rs.AddAccessRule(rar);
-                rk.SetAccessControl(rs);
-            }
         }
 
         /// <summary>
