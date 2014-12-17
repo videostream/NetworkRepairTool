@@ -20,6 +20,8 @@ using System.Security.AccessControl;
 using System.Configuration;
 using System.Reflection;
 using System.Net.Configuration;
+using System.Management;
+using System.Collections.Specialized;
 namespace VideostreamNetworkRepair
 {
     public partial class Form1 : Form
@@ -34,39 +36,9 @@ namespace VideostreamNetworkRepair
             ToggleAllowUnsafeHeaderParsing(true);
             repairFirewall();
             tmrProgress.Start();
+            //bool returnCode = AntivirusInstalled();
+            //MessageBox.Show(GetAntiVirusInfoString());
             //getInstalledApplications();
-        }
-
-        // Enable/disable useUnsafeHeaderParsing.
-        // See http://o2platform.wordpress.com/2010/10/20/dealing-with-the-server-committed-a-protocol-violation-sectionresponsestatusline/
-        public static bool ToggleAllowUnsafeHeaderParsing(bool enable)
-        {
-            //Get the assembly that contains the internal class
-            Assembly assembly = Assembly.GetAssembly(typeof(SettingsSection));
-            if (assembly != null)
-            {
-                //Use the assembly in order to get the internal type for the internal class
-                Type settingsSectionType = assembly.GetType("System.Net.Configuration.SettingsSectionInternal");
-                if (settingsSectionType != null)
-                {
-                    //Use the internal static property to get an instance of the internal settings class.
-                    //If the static instance isn't created already invoking the property will create it for us.
-                    object anInstance = settingsSectionType.InvokeMember("Section",
-                    BindingFlags.Static | BindingFlags.GetProperty | BindingFlags.NonPublic, null, null, new object[] { });
-                    if (anInstance != null)
-                    {
-                        //Locate the private bool field that tells the framework if unsafe header parsing is allowed
-                        FieldInfo aUseUnsafeHeaderParsing = settingsSectionType.GetField("useUnsafeHeaderParsing", BindingFlags.NonPublic | BindingFlags.Instance);
-                        if (aUseUnsafeHeaderParsing != null)
-                        {
-                            aUseUnsafeHeaderParsing.SetValue(anInstance, enable);
-                            return true;
-                        }
-
-                    }
-                }
-            }
-            return false;
         }
 
         private void openPort(int port, string name)
@@ -304,7 +276,7 @@ namespace VideostreamNetworkRepair
 
         private void btnReboot_Click(object sender, EventArgs e)
         {
-           // System.Diagnostics.Process.Start("shutdown.exe", "-r -t 0");
+           System.Diagnostics.Process.Start("shutdown.exe", "-r -t 0");
         }
 
         private void resultSuccess()
@@ -344,6 +316,131 @@ namespace VideostreamNetworkRepair
         {
 
         }
+
+
+
+        public static bool AntivirusInstalled()
+        {
+
+            string wmipathstr = @"\\" + Environment.MachineName + @"\root\SecurityCenter";
+            try
+            {
+                ManagementObjectSearcher searcher = new ManagementObjectSearcher(wmipathstr, "SELECT * FROM AntivirusProduct");
+                ManagementObjectCollection instances = searcher.Get();
+                foreach (var j in instances)
+                {
+                    String companyname = (String)j.GetPropertyValue("companyName");
+                    String name = (String)j.GetPropertyValue("displayName");
+                    Console.WriteLine(companyname + ", " + name);
+                }
+                return instances.Count > 0;
+            }
+
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Returns a string that contains information about the
+        /// currently installed antivirus program. The string is formated as follows: $name: $value
+        /// </summary>
+        /// <param name="product">Specification of the class to be looked into
+        /// [AntiVirusProduct, AntiSpywareProduct, FirewallProduct]</param>
+        /// <returns>String with the found information</returns>
+        public string GetAntiVirusInfoString(string product = "AntiVirusProduct")
+        {
+            // Get NameValueCollection
+            NameValueCollection avCollection = GetAntiVirusInfo(product);
+
+            // String, where the output is written into
+            String output = String.Empty;
+            foreach (string key in avCollection.AllKeys)
+            {
+                // Append key-value pairs to the output string (in scheme $name: $value)
+                if (key == "displayName")
+                {
+                    if (avCollection[key].ToLower().Equals("windows defender"))
+                    {
+                        addWindowsDefenderExemption();
+                    }
+                    output += key + ": " + avCollection[key] + Environment.NewLine;
+                }
+            }
+
+            return output;
+        }
+
+        private void addWindowsDefenderExemption()
+        {
+
+        }
+
+        /// <summary>
+        /// Returns a NameValueCollection that contains information
+        /// about the currently installed antivirus product
+        /// </summary>
+        /// <param name="product">Specification of the class to be looked into
+        /// [AntiVirusProduct, AntiSpywareProduct, FirewallProduct]</param>
+        /// <returns>NameValueCollection that contains the found information</returns>
+        public NameValueCollection GetAntiVirusInfo(string product = "AntiVirusProduct")
+        {
+            // Looks for the wanted class in the WMI namespace
+            // (applicable for AntiVirusProduct, AntiSpywareProduct, FirewallProduct)
+            // Using Windows XP systems you have to replace SecurityCenter2 with SecurityCenter.
+            ManagementObjectSearcher objSearcher =
+                new ManagementObjectSearcher("root\\SecurityCenter2", "SELECT * FROM " + product);
+
+            // NameValueCollection where the result should be saved
+            NameValueCollection outputCollection = new NameValueCollection();
+
+            foreach (ManagementObject queryObj in objSearcher.Get())
+            {
+                foreach (PropertyData propertyData in queryObj.Properties)
+                {
+                    // Add found properties to the collection
+                    outputCollection.Add(propertyData.Name.ToString(), propertyData.Value.ToString());
+                }
+            }
+
+            return outputCollection;
+        }
+
+        // Enable/disable useUnsafeHeaderParsing.
+        // See http://o2platform.wordpress.com/2010/10/20/dealing-with-the-server-committed-a-protocol-violation-sectionresponsestatusline/
+        public static bool ToggleAllowUnsafeHeaderParsing(bool enable)
+        {
+            //Get the assembly that contains the internal class
+            Assembly assembly = Assembly.GetAssembly(typeof(SettingsSection));
+            if (assembly != null)
+            {
+                //Use the assembly in order to get the internal type for the internal class
+                Type settingsSectionType = assembly.GetType("System.Net.Configuration.SettingsSectionInternal");
+                if (settingsSectionType != null)
+                {
+                    //Use the internal static property to get an instance of the internal settings class.
+                    //If the static instance isn't created already invoking the property will create it for us.
+                    object anInstance = settingsSectionType.InvokeMember("Section",
+                    BindingFlags.Static | BindingFlags.GetProperty | BindingFlags.NonPublic, null, null, new object[] { });
+                    if (anInstance != null)
+                    {
+                        //Locate the private bool field that tells the framework if unsafe header parsing is allowed
+                        FieldInfo aUseUnsafeHeaderParsing = settingsSectionType.GetField("useUnsafeHeaderParsing", BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (aUseUnsafeHeaderParsing != null)
+                        {
+                            aUseUnsafeHeaderParsing.SetValue(anInstance, enable);
+                            return true;
+                        }
+
+                    }
+                }
+            }
+            return false;
+        }
+
     }
 
     public class VideostreamResponse
