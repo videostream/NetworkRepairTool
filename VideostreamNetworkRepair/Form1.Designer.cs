@@ -40,11 +40,24 @@
             this.pnlRepairStatus = new System.Windows.Forms.Panel();
             this.imgStatus = new System.Windows.Forms.PictureBox();
             pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(pictureBox1)).BeginInit();
+            this.panel1.SuspendLayout();
             this.pnlRepairStatus.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.imgStatus)).BeginInit();
             this.SuspendLayout();
+            // 
+            // pictureBox1
+            // 
+            pictureBox1.Dock = System.Windows.Forms.DockStyle.Left;
+            pictureBox1.Image = global::VideostreamNetworkRepair.Properties.Resources.Title;
+            pictureBox1.InitialImage = global::VideostreamNetworkRepair.Properties.Resources.Title;
+            pictureBox1.Location = new System.Drawing.Point(0, 0);
+            pictureBox1.Name = "pictureBox1";
+            pictureBox1.Padding = new System.Windows.Forms.Padding(10, 10, 0, 0);
+            pictureBox1.Size = new System.Drawing.Size(287, 93);
+            pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
+            pictureBox1.TabIndex = 0;
+            pictureBox1.TabStop = false;
             // 
             // btnClose
             // 
@@ -88,19 +101,6 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(520, 93);
             this.panel1.TabIndex = 7;
-            // 
-            // pictureBox1
-            // 
-            pictureBox1.Dock = System.Windows.Forms.DockStyle.Left;
-            pictureBox1.Image = global::VideostreamNetworkRepair.Properties.Resources.Title;
-            pictureBox1.InitialImage = global::VideostreamNetworkRepair.Properties.Resources.Title;
-            pictureBox1.Location = new System.Drawing.Point(0, 0);
-            pictureBox1.Name = "pictureBox1";
-            pictureBox1.Padding = new System.Windows.Forms.Padding(10, 10, 0, 0);
-            pictureBox1.Size = new System.Drawing.Size(287, 93);
-            pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
-            pictureBox1.TabIndex = 0;
-            pictureBox1.TabStop = false;
             // 
             // lblStatus
             // 
@@ -158,10 +158,11 @@
             this.Name = "Form1";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.Text = "Videostream Repair";
+            this.TopMost = true;
             this.Load += new System.EventHandler(this.Form1_Load);
+            ((System.ComponentModel.ISupportInitialize)(pictureBox1)).EndInit();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(pictureBox1)).EndInit();
             this.pnlRepairStatus.ResumeLayout(false);
             this.pnlRepairStatus.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.imgStatus)).EndInit();

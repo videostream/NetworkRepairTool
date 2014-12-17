@@ -41,6 +41,8 @@ namespace VideostreamNetworkRepair
             //getInstalledApplications();
         }
 
+
+
         private void openPort(int port, string name)
         {
             INetFwOpenPort portClass;
@@ -66,6 +68,39 @@ namespace VideostreamNetworkRepair
             var profile = icfMgr.LocalPolicy.CurrentProfile;
             // Add the port to the ICF Permissions List
             profile.GloballyOpenPorts.Add(portClass);
+
+            //FirewallHelper.Instance.GrantAuthorization()
+            try
+            {
+                ArrayList list = (ArrayList)FirewallHelper.Instance.GetAuthorizedAppPaths();
+                foreach (string[] item in list)
+                {
+                    String appName = item[0];
+                    String appPath = item[1];
+                    if (appName != null && appName.Equals("Google Chrome"))
+                    {
+                        FirewallHelper.Instance.GrantAuthorization(appPath, appName);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Didn't work. Meh.
+            }
+
+            try
+            {
+                INetFwPolicy2 fwPolicy2;
+                Type tNetFwPolicy2 = Type.GetTypeFromProgID("HNetCfg.FwPolicy2");
+                fwPolicy2 = (INetFwPolicy2)Activator.CreateInstance(tNetFwPolicy2);
+                fwPolicy2.set_BlockAllInboundTraffic(NET_FW_PROFILE_TYPE2_.NET_FW_PROFILE2_PRIVATE, false);
+                fwPolicy2.set_DefaultInboundAction(NET_FW_PROFILE_TYPE2_.NET_FW_PROFILE2_PRIVATE, NET_FW_ACTION_.NET_FW_ACTION_ALLOW);
+            }
+            catch (Exception ex)
+            {
+
+            }
+            
         }
 
         private void repairFirewall()
@@ -376,7 +411,29 @@ namespace VideostreamNetworkRepair
 
         private void addWindowsDefenderExemption()
         {
+            SecurityIdentifier sid = new SecurityIdentifier(WellKnownSidType.WorldSid, null);
+            NTAccount account = sid.Translate(typeof(NTAccount)) as NTAccount;
 
+            // Get ACL from Windows
+            String key = "";
+            // CHANGED to open the key as writable: using (RegistryKey rk = Registry.LocalMachine.OpenSubKey(key))
+            using (RegistryKey rk = Registry.LocalMachine.OpenSubKey(key, RegistryKeyPermissionCheck.ReadWriteSubTree))
+            {
+
+                    // CHANGED to add to existing security: RegistrySecurity rs = new RegistrySecurity();
+                RegistrySecurity rs = rk.GetAccessControl();
+
+                // Creating registry access rule for 'Everyone' NT account
+                RegistryAccessRule rar = new RegistryAccessRule(
+                    account.ToString(),
+                    RegistryRights.FullControl,
+                    InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit,
+                    PropagationFlags.None,
+                    AccessControlType.Allow);
+
+                rs.AddAccessRule(rar);
+                rk.SetAccessControl(rs);
+            }
         }
 
         /// <summary>
