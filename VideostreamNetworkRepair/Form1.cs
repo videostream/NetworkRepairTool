@@ -34,8 +34,9 @@ namespace VideostreamNetworkRepair
                 // windows XP. Disable profile button.
             }
             ToggleAllowUnsafeHeaderParsing(true);
-            repairFirewall();
-            tmrProgress.Start();
+            resultReboot();
+            //repairFirewall();
+            //tmrProgress.Start();
             //bool returnCode = AntivirusInstalled();
             //MessageBox.Show(GetAntiVirusInfoString());
             //GetAntiVirusInfoString();
@@ -92,11 +93,12 @@ namespace VideostreamNetworkRepair
                     if (cat == NLM_NETWORK_CATEGORY.NLM_NETWORK_CATEGORY_PRIVATE)
                     {
                         Console.WriteLine("[PRIVATE]");
+                        network.SetCategory(NLM_NETWORK_CATEGORY.NLM_NETWORK_CATEGORY_PUBLIC);
                     }
                     else if (cat == NLM_NETWORK_CATEGORY.NLM_NETWORK_CATEGORY_PUBLIC)
                     {
                         Console.WriteLine("[PUBLIC]");
-                        network.SetCategory(NLM_NETWORK_CATEGORY.NLM_NETWORK_CATEGORY_PRIVATE);
+                        //network.SetCategory(NLM_NETWORK_CATEGORY.NLM_NETWORK_CATEGORY_PRIVATE);
                     }
                     else if (cat == NLM_NETWORK_CATEGORY.NLM_NETWORK_CATEGORY_DOMAIN_AUTHENTICATED)
                     {
@@ -148,8 +150,8 @@ namespace VideostreamNetworkRepair
         int count = 0;
 
         void StartWebRequest()
-        {
-            webRequest = (HttpWebRequest)HttpWebRequest.Create(new Uri("http://127.0.0.1:5556/portfix-complete"));
+        {   
+            webRequest = (HttpWebRequest)HttpWebRequest.Create(new Uri("http://127.0.0.1:5556/portfix-complete?antivirusList="));
             //webRequest.Timeout = 20000;
             this.DoWithResponse(webRequest, (response) =>
             {
@@ -248,64 +250,78 @@ namespace VideostreamNetworkRepair
         ArrayList installedList = new ArrayList();
         private void authorizeChromeApplication()
         {
-            string registry_key = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall";
+            try
+            {
+                string registry_key = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall";
+
+                using (Microsoft.Win32.RegistryKey key = Registry.LocalMachine.OpenSubKey(registry_key))
+                {
+                    foreach (string subkey_name in key.GetSubKeyNames())
+                    {
+                        using (RegistryKey subkey = key.OpenSubKey(subkey_name))
+                        {
+                            String displayName = (String)subkey.GetValue("DisplayName");
+                            String installLocation = (String)subkey.GetValue("InstallLocation");
+                            if (displayName != null && !displayName.Trim().Equals(""))
+                            {
+                                if (displayName.Equals("Google Chrome"))
+                                {
+                                    try
+                                    {
+                                        FirewallHelper.Instance.GrantAuthorization(installLocation + "\\chrome.exe", displayName);
+
+                                    }
+                                    catch (Exception ex)
+                                    {
+
+                                    }
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            try
+            {
+                string other_key = @"SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Google Chrome";
+                using (Microsoft.Win32.RegistryKey key = Registry.LocalMachine.OpenSubKey(other_key))
+                {
+                    foreach (string subkey_name in key.GetSubKeyNames())
+                    {
+                        using (RegistryKey subkey = key.OpenSubKey(subkey_name))
+                        {
+                            String displayName = (String)subkey.GetValue("DisplayName");
+                            String installLocation = (String)subkey.GetValue("InstallLocation");
+                            if (displayName != null && !displayName.Trim().Equals(""))
+                            {
+                                if (displayName.Equals("Google Chrome"))
+                                {
+                                    try
+                                    {
+                                        FirewallHelper.Instance.GrantAuthorization(installLocation + "\\chrome.exe", displayName);
+
+                                    }
+                                    catch (Exception ex)
+                                    {
+
+                                    }
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
             
-            using (Microsoft.Win32.RegistryKey key = Registry.LocalMachine.OpenSubKey(registry_key))
-            {
-                foreach (string subkey_name in key.GetSubKeyNames())
-                {
-                    using (RegistryKey subkey = key.OpenSubKey(subkey_name))
-                    {
-                        String displayName = (String)subkey.GetValue("DisplayName");
-                        String installLocation = (String)subkey.GetValue("InstallLocation");
-                        if (displayName != null && !displayName.Trim().Equals(""))
-                        {
-                            if (displayName.Equals("Google Chrome"))
-                            {
-                                try
-                                {
-                                    FirewallHelper.Instance.GrantAuthorization(installLocation + "\\chrome.exe", displayName);
-                                    
-                                }
-                                catch (Exception ex)
-                                {
-
-                                }
-                                return;
-                            }
-                        }
-                    }
-                }
-            }
-
-            string other_key = @"SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Google Chrome";
-            using (Microsoft.Win32.RegistryKey key = Registry.LocalMachine.OpenSubKey(other_key))
-            {
-                foreach (string subkey_name in key.GetSubKeyNames())
-                {
-                    using (RegistryKey subkey = key.OpenSubKey(subkey_name))
-                    {
-                        String displayName = (String)subkey.GetValue("DisplayName");
-                        String installLocation = (String)subkey.GetValue("InstallLocation");
-                        if (displayName != null && !displayName.Trim().Equals(""))
-                        {
-                            if (displayName.Equals("Google Chrome"))
-                            {
-                                try
-                                {
-                                    FirewallHelper.Instance.GrantAuthorization(installLocation + "\\chrome.exe", displayName);
-
-                                }
-                                catch (Exception ex)
-                                {
-
-                                }
-                                return;
-                            }
-                        }
-                    }
-                }
-            }
         }
 
         private bool isAntivirus(string displayName)
@@ -341,20 +357,30 @@ namespace VideostreamNetworkRepair
             lblStatus.Hide();
             btnClose.Show();
 
-            imgStatus.Image = VideostreamNetworkRepair.Properties.Resources.Enjoy;
+            imgStatus.Image = VideostreamNetworkRepair.Properties.Resources.Enjoy1;
             imgStatus.Show();
         }
 
         private void resultReboot()
         {
+            List<String> antiviruses = GetAntiviruses();
+            if (antiviruses.Count > 0)
+            {
+                lblAntivirus.Visible = true;
+                lstAntivirus.Visible = true;
+                lstAntivirus.DataSource = antiviruses;
+            }
+            else
+            {
+                btnReboot.Show();
+                imgStatus.Image = VideostreamNetworkRepair.Properties.Resources.Reboot;
+                imgStatus.Show();
+            }
             prgRepair.Hide();
             prgRepair.Value = prgRepair.Maximum;
-            btnReboot.Show();
             btnClose.Show();
             lblStatus.Hide();
 
-            imgStatus.Image = VideostreamNetworkRepair.Properties.Resources.Reboot;
-            imgStatus.Show();
         }
 
         private void resultGoBackToVideostream()
@@ -374,9 +400,9 @@ namespace VideostreamNetworkRepair
 
 
 
-        public static bool AntivirusInstalled()
+        public static List<String> GetAntiviruses()
         {
-
+            List<String> list = new List<String>();
             string wmipathstr = @"\\" + Environment.MachineName + @"\root\SecurityCenter";
             try
             {
@@ -387,16 +413,30 @@ namespace VideostreamNetworkRepair
                     String companyname = (String)j.GetPropertyValue("companyName");
                     String name = (String)j.GetPropertyValue("displayName");
                     Console.WriteLine(companyname + ", " + name);
+                    list.Add(companyname + " " + name);
                 }
-                return instances.Count > 0;
-            }
-
-            catch (Exception e)
+            } catch (Exception e)
             {
                 Console.WriteLine(e.Message);
             }
 
-            return false;
+            try
+            {
+                ManagementObjectSearcher searcher = new ManagementObjectSearcher(wmipathstr, "SELECT * FROM FirewallProduct");
+                ManagementObjectCollection instances = searcher.Get();
+                foreach (var j in instances)
+                {
+                    String companyname = (String)j.GetPropertyValue("companyName");
+                    String name = (String)j.GetPropertyValue("displayName");
+                    Console.WriteLine(companyname + ", " + name);
+                    list.Add(companyname + " " + name);
+                }
+            } catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+            return list;
         }
 
         /// <summary>

@@ -38,6 +38,8 @@
             this.lblStatus = new System.Windows.Forms.Label();
             this.tmrProgress = new System.Windows.Forms.Timer(this.components);
             this.pnlRepairStatus = new System.Windows.Forms.Panel();
+            this.lstAntivirus = new System.Windows.Forms.ListBox();
+            this.lblAntivirus = new System.Windows.Forms.Label();
             this.imgStatus = new System.Windows.Forms.PictureBox();
             pictureBox1 = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(pictureBox1)).BeginInit();
@@ -74,7 +76,7 @@
             // prgRepair
             // 
             this.prgRepair.Location = new System.Drawing.Point(12, 66);
-            this.prgRepair.Maximum = 500;
+            this.prgRepair.Maximum = 1000;
             this.prgRepair.Name = "prgRepair";
             this.prgRepair.Size = new System.Drawing.Size(496, 27);
             this.prgRepair.Step = 1;
@@ -99,7 +101,7 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(520, 93);
+            this.panel1.Size = new System.Drawing.Size(523, 93);
             this.panel1.TabIndex = 7;
             // 
             // lblStatus
@@ -119,6 +121,8 @@
             // 
             // pnlRepairStatus
             // 
+            this.pnlRepairStatus.Controls.Add(this.lstAntivirus);
+            this.pnlRepairStatus.Controls.Add(this.lblAntivirus);
             this.pnlRepairStatus.Controls.Add(this.imgStatus);
             this.pnlRepairStatus.Controls.Add(this.prgRepair);
             this.pnlRepairStatus.Controls.Add(this.lblStatus);
@@ -127,10 +131,32 @@
             this.pnlRepairStatus.Size = new System.Drawing.Size(520, 149);
             this.pnlRepairStatus.TabIndex = 9;
             // 
+            // lstAntivirus
+            // 
+            this.lstAntivirus.FormattingEnabled = true;
+            this.lstAntivirus.ItemHeight = 15;
+            this.lstAntivirus.Location = new System.Drawing.Point(0, 80);
+            this.lstAntivirus.Name = "lstAntivirus";
+            this.lstAntivirus.Size = new System.Drawing.Size(520, 64);
+            this.lstAntivirus.TabIndex = 10;
+            this.lstAntivirus.Visible = false;
+            // 
+            // lblAntivirus
+            // 
+            this.lblAntivirus.AutoSize = true;
+            this.lblAntivirus.Font = new System.Drawing.Font("Segoe UI", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblAntivirus.Location = new System.Drawing.Point(6, 0);
+            this.lblAntivirus.Name = "lblAntivirus";
+            this.lblAntivirus.Size = new System.Drawing.Size(516, 60);
+            this.lblAntivirus.TabIndex = 11;
+            this.lblAntivirus.Text = "Couldn\'t successfully auto repair. Manually disable the\r\n following firewalls. Em" +
+    "ail us if you need any help!";
+            this.lblAntivirus.Visible = false;
+            // 
             // imgStatus
             // 
             this.imgStatus.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this.imgStatus.Image = global::VideostreamNetworkRepair.Properties.Resources.Enjoy;
+            this.imgStatus.Image = global::VideostreamNetworkRepair.Properties.Resources.Enjoy1;
             this.imgStatus.Location = new System.Drawing.Point(0, 0);
             this.imgStatus.Name = "imgStatus";
             this.imgStatus.Size = new System.Drawing.Size(520, 146);
@@ -145,7 +171,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(520, 294);
+            this.ClientSize = new System.Drawing.Size(523, 294);
             this.Controls.Add(this.pnlRepairStatus);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.btnReboot);
@@ -180,6 +206,8 @@
         private System.Windows.Forms.Timer tmrProgress;
         private System.Windows.Forms.Panel pnlRepairStatus;
         private System.Windows.Forms.PictureBox imgStatus;
+        private System.Windows.Forms.ListBox lstAntivirus;
+        private System.Windows.Forms.Label lblAntivirus;
     }
 }
 
