@@ -402,38 +402,48 @@ namespace VideostreamNetworkRepair
         public static List<String> GetAntiviruses()
         {
             List<String> list = new List<String>();
-            string wmipathstr = @"\\" + Environment.MachineName + @"\root\SecurityCenter";
-            try
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT && Environment.OSVersion.Version.Major == 5 && Environment.OSVersion.Version.Minor == 1)
             {
-                ManagementObjectSearcher searcher = new ManagementObjectSearcher(wmipathstr, "SELECT * FROM AntivirusProduct");
-                ManagementObjectCollection instances = searcher.Get();
-                foreach (var j in instances)
-                {
-                    String companyname = (String)j.GetPropertyValue("companyName");
-                    String name = (String)j.GetPropertyValue("displayName");
-                    Console.WriteLine(companyname + ", " + name);
-                    list.Add(companyname + " " + name);
-                }
-            } catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
+                // windows XP. Can't do this, yo.
             }
+             else
+             {
+                 string wmipathstr = @"\\" + Environment.MachineName + @"\root\SecurityCenter";
+                 try
+                 {
+                     ManagementObjectSearcher searcher = new ManagementObjectSearcher(wmipathstr, "SELECT * FROM AntivirusProduct");
+                     ManagementObjectCollection instances = searcher.Get();
+                     foreach (var j in instances)
+                     {
+                         String companyname = (String)j.GetPropertyValue("companyName");
+                         String name = (String)j.GetPropertyValue("displayName");
+                         Console.WriteLine(companyname + ", " + name);
+                         list.Add(companyname + " " + name);
+                     }
+                 }
+                 catch (Exception e)
+                 {
+                     Console.WriteLine(e.Message);
+                 }
 
-            try
-            {
-                ManagementObjectSearcher searcher = new ManagementObjectSearcher(wmipathstr, "SELECT * FROM FirewallProduct");
-                ManagementObjectCollection instances = searcher.Get();
-                foreach (var j in instances)
-                {
-                    String companyname = (String)j.GetPropertyValue("companyName");
-                    String name = (String)j.GetPropertyValue("displayName");
-                    Console.WriteLine(companyname + ", " + name);
-                    list.Add(companyname + " " + name);
-                }
-            } catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
+                 try
+                 {
+                     ManagementObjectSearcher searcher = new ManagementObjectSearcher(wmipathstr, "SELECT * FROM FirewallProduct");
+                     ManagementObjectCollection instances = searcher.Get();
+                     foreach (var j in instances)
+                     {
+                         String companyname = (String)j.GetPropertyValue("companyName");
+                         String name = (String)j.GetPropertyValue("displayName");
+                         Console.WriteLine(companyname + ", " + name);
+                         list.Add(companyname + " " + name);
+                     }
+                 }
+                 catch (Exception ex)
+                 {
+                     Console.WriteLine(ex.Message);
+                 }
+             }
+            
 
             return list;
         }
