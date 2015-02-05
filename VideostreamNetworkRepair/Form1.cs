@@ -34,9 +34,8 @@ namespace VideostreamNetworkRepair
                 // windows XP. Disable profile button.
             }
             ToggleAllowUnsafeHeaderParsing(true);
-            resultReboot();
-            //repairFirewall();
-            //tmrProgress.Start();
+            repairFirewall();
+            tmrProgress.Start();
             //bool returnCode = AntivirusInstalled();
             //MessageBox.Show(GetAntiVirusInfoString());
             //GetAntiVirusInfoString();
