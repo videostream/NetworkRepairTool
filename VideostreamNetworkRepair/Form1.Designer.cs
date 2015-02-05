@@ -147,10 +147,10 @@
             this.lblAntivirus.Font = new System.Drawing.Font("Segoe UI", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblAntivirus.Location = new System.Drawing.Point(6, 0);
             this.lblAntivirus.Name = "lblAntivirus";
-            this.lblAntivirus.Size = new System.Drawing.Size(536, 60);
+            this.lblAntivirus.Size = new System.Drawing.Size(504, 60);
             this.lblAntivirus.TabIndex = 11;
-            this.lblAntivirus.Text = "Couldn\'t successfully auto repair. Manually disable these\r\n firewalls and reboot." +
-    " Email us if you need any help!";
+            this.lblAntivirus.Text = "Couldn\'t successfully auto repair. Try to disable these\r\n firewalls and reboot. E" +
+    "mail us if you need any help!";
             this.lblAntivirus.Visible = false;
             // 
             // imgStatus
